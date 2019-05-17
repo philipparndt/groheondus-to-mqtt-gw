@@ -1,7 +1,7 @@
 version: '2'
 
 services:
-  mielemqtt:
+  groheondus:
     environment:
       TZ: "Europe/Berlin"
     hostname: groheondusmqtt
