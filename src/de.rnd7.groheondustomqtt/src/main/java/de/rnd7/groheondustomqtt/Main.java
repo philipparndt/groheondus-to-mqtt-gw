@@ -1,88 +1,76 @@
 package de.rnd7.groheondustomqtt;
 
-import java.time.Duration;
-import java.time.Instant;
-import java.util.List;
-import java.util.Objects;
+import java.io.File;
+import java.io.IOException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
-import org.grohe.ondus.api.OndusService;
-import org.grohe.ondus.api.model.ApplianceStatus.ApplianceStatusModel;
-import org.grohe.ondus.api.model.BaseAppliance;
-import org.grohe.ondus.api.model.Location;
-import org.grohe.ondus.api.model.Room;
-import org.grohe.ondus.api.model.SenseApplianceData;
-import org.grohe.ondus.api.model.SenseApplianceData.Measurement;
-import org.grohe.ondus.api.model.SenseGuardApplianceData;
-import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import com.beust.jcommander.JCommander;
+import com.google.common.eventbus.EventBus;
 
-import de.rnd7.groheondustomqtt.grohe.GroheTokenLogin;
+import de.rnd7.groheondustomqtt.config.Config;
+import de.rnd7.groheondustomqtt.config.ConfigParser;
+import de.rnd7.groheondustomqtt.grohe.GroheAPI;
+import de.rnd7.groheondustomqtt.grohe.GroheDevice;
+import de.rnd7.groheondustomqtt.mqtt.GwMqttClient;
 
 public class Main {
 
-	public Main(final Args args) {
-		if (args.isFetchtoken()) {
-			Objects.requireNonNull("Username", args.getUsername());
-			Objects.requireNonNull("Password", args.getPassword());
+	private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
 
-			this.fetchToken(args);
+	private final EventBus eventBus = new EventBus();
 
-		}
-	}
+	private GroheAPI groheAPI;
 
-	private void fetchToken(final Args args) {
+	public Main(final Config config) {
+		this.eventBus.register(new GwMqttClient(config));
+
 		try {
-			final JSONObject token = new GroheTokenLogin(args.getUsername(), args.getPassword()).login();
-			System.out.println(token);
+			this.groheAPI = new GroheAPI(config.getGroheUsername(), config.getGrohePassword());
 
-			final OndusService service = OndusService.login(token.getString("refresh_token"));
-			for (final Location location : service.getLocations()) {
-				System.out.println("Location: " + location.getName());
-				for (final Room room : service.getRooms(location)) {
-					System.out.println("Room: " + room.getName());
-					for (final BaseAppliance appliance : service.getAppliances(room)) {
-						System.out.println("appliance: " + appliance.getName() + " " + appliance.getSerialNumber());
+			final ScheduledExecutorService executor = Executors.newScheduledThreadPool(2);
+			executor.scheduleAtFixedRate(this::exec, 0, config.getPollingInterval().getSeconds(), TimeUnit.SECONDS);
 
-						service.getApplianceStatus(appliance).ifPresent(status -> {
-							System.out.println(status);
-							final List<ApplianceStatusModel> statuses = status.getStatuses();
-							for (final ApplianceStatusModel model : statuses) {
-								System.out.println(model.getType() + ": " + model.getValue());
-							}
-						});
-
-						service.getApplianceData(appliance, Instant.now().minus(Duration.ofHours(24)), Instant.now()).ifPresent(data -> {
-							System.out.println(data);
-
-							if (data instanceof SenseApplianceData) {
-								final SenseApplianceData senseApplianceData = (SenseApplianceData) data;
-								final List<Measurement> measurements = senseApplianceData.getData().getMeasurement();
-								final Measurement measurement = measurements.get(measurements.size() - 1);
-
-								System.out.println(measurement.getHumidity());
-								System.out.println(measurement.getTemperature());
-								System.out.println(measurement.getTimestamp());
-							} else if (data instanceof SenseGuardApplianceData) {
-
-							}
-
-						});
-
-					}
-				}
+			while (true) {
+				this.sleep();
 			}
-
 		} catch (final Exception e) {
-			e.printStackTrace();
+			LOGGER.error(e.getMessage(), e);
 		}
 	}
 
-	public static void main(final String[] argv) {
-		final Args args = new Args();
+	private void sleep() {
+		try {
+			Thread.sleep(100);
+		} catch (final InterruptedException e) {
+			LOGGER.debug(e.getMessage(), e);
+			Thread.currentThread().interrupt();
+		}
+	}
 
-		JCommander.newBuilder().addObject(args).build().parse(argv);
+	private void exec() {
+		try {
+			for (final GroheDevice device : this.groheAPI.fetchDevices()) {
+				this.eventBus.post(device.toMessage());
+			}
+		} catch (final Exception e) {
+			LOGGER.error(e.getMessage(), e);
+		}
+	}
 
-		new Main(args);
+	public static void main(final String[] args) {
+		if (args.length != 1) {
+			LOGGER.error("Expected configuration file as argument");
+			return;
+		}
+
+		try {
+			new Main(ConfigParser.parse(new File(args[0])));
+		} catch (final IOException e) {
+			LOGGER.error(e.getMessage(), e);
+		}
 	}
 }
