@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.grohe.ondus.api.OndusService;
 import org.grohe.ondus.api.model.ApplianceStatus;
+import org.grohe.ondus.api.model.ApplianceStatus.ApplianceStatusModel;
 import org.grohe.ondus.api.model.BaseAppliance;
 import org.grohe.ondus.api.model.SenseApplianceData;
 import org.grohe.ondus.api.model.SenseApplianceData.Measurement;
@@ -56,6 +57,15 @@ public class GroheApplianceDataConverter {
 	}
 
 	private void putStatus(final ApplianceStatus status, final JSONObject result) {
-		status.getStatuses().forEach(s -> result.put(s.getType(), s.getValue()));
+		status.getStatuses().forEach(s -> result.put(s.getType(), this.convertValue(s)));
+	}
+
+	private Object convertValue(final ApplianceStatusModel s) {
+		final String value = s.getValue();
+		try {
+			return Integer.parseInt(value);
+		} catch (final NumberFormatException e) {
+			return value;
+		}
 	}
 }
