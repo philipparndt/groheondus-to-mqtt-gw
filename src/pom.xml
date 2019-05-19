@@ -52,14 +52,8 @@
 			<url>https://repo.eclipse.org/content/repositories/paho-releases/</url>
 		</repository>
 		<repository>
-			<id>philipparndt-production</id>
-			<url>https://packagecloud.io/philipparndt/production/maven2</url>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
+			 <id>jcenter</id>
+			 <url>https://jcenter.bintray.com/</url>
 		</repository>
 	</repositories>
 

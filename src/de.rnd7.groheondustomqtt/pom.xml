@@ -19,7 +19,7 @@
 		</dependency>
 
 		<dependency>
-			<groupId>ondus-api</groupId>
+			<groupId>org.grohe</groupId>
 			<artifactId>ondus-api</artifactId>
 			<version>0.0.9</version>
 		</dependency>
