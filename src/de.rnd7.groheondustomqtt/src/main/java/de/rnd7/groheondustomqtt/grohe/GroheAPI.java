@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.grohe.ondus.api.OndusService;
 import org.grohe.ondus.api.model.BaseAppliance;
+import org.grohe.ondus.api.model.Room;
 import org.json.JSONObject;
 
 public class GroheAPI {
@@ -22,7 +23,8 @@ public class GroheAPI {
     public List<GroheDevice> fetchDevices() throws IOException {
         final List<GroheDevice> result = new ArrayList<>();
         for (final BaseAppliance appliance : service.appliances()) {
-            final String topic = String.format("grohe/%s/%s", appliance.getRoom(), appliance.getName());
+            final Room room = appliance.getRoom();
+            final String topic = String.format("grohe/%s/%s/%s", room.getLocation().getName(), room.getName(), appliance.getName());
             result.add(new GroheDevice(topic, this.converter.convert(appliance)));
         }
 
