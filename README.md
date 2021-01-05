@@ -24,6 +24,21 @@ information.
 ## Example configuration
 see [config-example.json](config-example.json)
 
+## Docker compose example
+
+```
+groheondusmqtt:
+  environment:
+    TZ: "Europe/Berlin"
+  hostname: groheondusmqtt
+  image: pharndt/groheondusmqtt:1.0.6
+  volumes:
+   - ./config/grohe:/var/lib/groheondus-to-mqtt-gw:ro
+  restart: always
+  depends_on:
+   - mosquitto
+```
+
 # build
 
 build the docker container using `build.sh`
