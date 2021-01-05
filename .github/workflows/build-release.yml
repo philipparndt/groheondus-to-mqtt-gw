@@ -73,6 +73,6 @@ jobs:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                 with:
                     upload_url: ${{ steps.create_release.outputs.upload_url }}
-                    asset_path: ./src/de.rnd7.groheondusmqtt/target/groheondus-to-mqtt-gw.jar
+                    asset_path: ./src/de.rnd7.groheondustomqtt/target/groheondus-to-mqtt-gw.jar
                     asset_name: groheondus-to-mqtt-gw.jar
                     asset_content_type: application/jar
