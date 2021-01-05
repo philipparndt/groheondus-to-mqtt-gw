@@ -3,7 +3,6 @@ package de.rnd7.groheondustomqtt.grohe;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -40,7 +39,7 @@ public class GroheApplianceDataConverter {
         return result;
     }
 
-    private void putData(BaseApplianceData data, JSONObject result) {
+    private void putData(final BaseApplianceData data, final JSONObject result) {
         for (final ApplienceDataStrategy strategy : strategies) {
             if (strategy.canHandle(data)) {
                 strategy.handle(data, result);

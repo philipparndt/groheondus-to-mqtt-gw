@@ -6,8 +6,6 @@ import java.util.List;
 
 import org.grohe.ondus.api.OndusService;
 import org.grohe.ondus.api.model.BaseAppliance;
-import org.grohe.ondus.api.model.Location;
-import org.grohe.ondus.api.model.Room;
 import org.json.JSONObject;
 
 public class GroheAPI {
