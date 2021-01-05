@@ -1,23 +1,15 @@
+# ---- Prod ----
 FROM openjdk:8-jdk-alpine
-
 LABEL maintainer="Philipp Arndt <2f.mail@gmx.de>"
 LABEL version="1.0"
-LABEL description="grohe ondus to mqtt gateway"
+LABEL description="Grohe ondus to mqtt gateway"
 
+RUN mkdir /opt/app
+WORKDIR /opt/app
+COPY src/de.rnd7.groheondustomqtt/target/groheondus-to-mqtt-gw.jar .
+COPY src/logback.xml .
 
-ENV LANG en_US.UTF-8
-ENV TERM xterm
+#RUN sed -i 's/jdk.security.caDistrustPolicies=SYMANTEC_TLS/#jdk.security.caDistrustPolicies=SYMANTEC_TLS/'\
+# /usr/lib/jvm/java-1.8-openjdk/jre/lib/security/java.security
 
-WORKDIR /opt/groheondus-to-mqtt-gw
-
-RUN apk update --no-cache && apk add --no-cache maven
-
-COPY src /opt/groheondus-to-mqtt-gw
-
-RUN sed -i 's/jdk.security.caDistrustPolicies=SYMANTEC_TLS/#jdk.security.caDistrustPolicies=SYMANTEC_TLS/'\
- /usr/lib/jvm/java-1.8-openjdk/jre/lib/security/java.security
-
-RUN mvn install assembly:single
-RUN cp ./de.rnd7.groheondustomqtt/target/groheondus-to-mqtt-gw.jar ./groheondus-to-mqtt-gw.jar
-
-CMD java -jar groheondus-to-mqtt-gw.jar /var/lib/groheondus-to-mqtt-gw/config.json
+CMD java -jar ./groheondus-to-mqtt-gw.jar /var/lib/groheondus-to-mqtt-gw/config.json
