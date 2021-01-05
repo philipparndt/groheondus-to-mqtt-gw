@@ -3,69 +3,61 @@ package de.rnd7.groheondustomqtt.grohe;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.grohe.ondus.api.OndusService;
 import org.grohe.ondus.api.model.ApplianceStatus;
 import org.grohe.ondus.api.model.ApplianceStatus.ApplianceStatusModel;
 import org.grohe.ondus.api.model.BaseAppliance;
-import org.grohe.ondus.api.model.SenseApplianceData;
-import org.grohe.ondus.api.model.SenseApplianceData.Measurement;
-import org.grohe.ondus.api.model.SenseGuardApplianceData;
+import org.grohe.ondus.api.model.BaseApplianceData;
 import org.json.JSONObject;
 
 public class GroheApplianceDataConverter {
-	private final OndusService service;
+    private final OndusService service;
 
-	public GroheApplianceDataConverter(final OndusService service) {
-		this.service = service;
-	}
+    private List<ApplienceDataStrategy> strategies = Arrays.asList(
+            new SenseApplianceDataStrategy(),
+            new GuardApplianceDataStrategy()
+    );
 
-	public JSONObject convert(final BaseAppliance appliance) throws IOException {
-		final JSONObject result = new JSONObject();
+    public GroheApplianceDataConverter(final OndusService service) {
+        this.service = service;
+    }
 
-		result.put("serialnumber", appliance.getSerialNumber());
-		this.service.getApplianceStatus(appliance).ifPresent(status -> this.putStatus(status, result));
-		this.service.getApplianceData(appliance, Instant.now().minus(Duration.ofHours(24)), Instant.now()).ifPresent(data -> {
-			if (data instanceof SenseApplianceData) {
-				this.putSenseData((SenseApplianceData) data, result);
-			} else if (data instanceof SenseGuardApplianceData) {
-				this.putSenseGuardData((SenseGuardApplianceData) data, result);
-			}
-		});
+    public JSONObject convert(final BaseAppliance appliance) throws IOException {
+        final JSONObject result = new JSONObject();
 
-		return result;
-	}
+        result.put("serialnumber", appliance.getSerialNumber());
 
-	private void putSenseData(final SenseApplianceData data, final JSONObject result) {
-		final List<Measurement> measurements = data.getData().getMeasurement();
-		final Measurement measurement = measurements.get(measurements.size() - 1);
+        this.service.applianceStatus(appliance)
+                .ifPresent(status -> this.putStatus(status, result));
 
-		result.put("humidity", measurement.getHumidity());
-		result.put("temperature", measurement.getTemperature());
-		result.put("timestamp", measurement.getTimestamp());
-	}
+        this.service.applianceData(appliance, Instant.now().minus(Duration.ofHours(24)), Instant.now())
+                .ifPresent(data -> putData(data, result));
 
-	private void putSenseGuardData(final SenseGuardApplianceData data, final JSONObject result) {
-		final List<SenseGuardApplianceData.Measurement> measurements = data.getData().getMeasurement();
-		final SenseGuardApplianceData.Measurement measurement = measurements.get(measurements.size() - 1);
+        return result;
+    }
 
-		result.put("flowrate", measurement.getFlowrate());
-		result.put("pressure", measurement.getPressure());
-		result.put("temperature", measurement.getTemperatureGuard());
-		result.put("timestamp", measurement.getTimestamp());
-	}
+    private void putData(BaseApplianceData data, JSONObject result) {
+        for (final ApplienceDataStrategy strategy : strategies) {
+            if (strategy.canHandle(data)) {
+                strategy.handle(data, result);
+            }
+        }
+    }
 
-	private void putStatus(final ApplianceStatus status, final JSONObject result) {
-		status.getStatuses().forEach(s -> result.put(s.getType(), this.convertValue(s)));
-	}
+    private void putStatus(final ApplianceStatus status, final JSONObject result) {
+        status.getStatuses().forEach(s -> result.put(s.getType(), this.convertValue(s)));
+    }
 
-	private Object convertValue(final ApplianceStatusModel s) {
-		final String value = s.getValue();
-		try {
-			return Integer.parseInt(value);
-		} catch (final NumberFormatException e) {
-			return value;
-		}
-	}
+    private Object convertValue(final ApplianceStatusModel s) {
+        final String value = s.getValue();
+        try {
+            return Integer.parseInt(value);
+        } catch (final NumberFormatException e) {
+            return value;
+        }
+    }
 }
