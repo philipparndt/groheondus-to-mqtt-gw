@@ -1,4 +1,5 @@
 # groheondus-to-mqtt-gw
+[![mqtt-smarthome](https://img.shields.io/badge/mqtt-smarthome-blue.svg)](https://github.com/mqtt-smarthome/mqtt-smarthome)
 
 Convert the grohe ondus data to mqtt messages
 
