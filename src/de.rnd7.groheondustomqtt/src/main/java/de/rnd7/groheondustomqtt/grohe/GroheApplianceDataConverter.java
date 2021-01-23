@@ -17,8 +17,8 @@ public class GroheApplianceDataConverter {
     private final OndusService service;
 
     private List<ApplienceDataStrategy> strategies = Arrays.asList(
-            new SenseApplianceDataStrategy(),
-            new GuardApplianceDataStrategy()
+        new SenseApplianceDataStrategy(),
+        new GuardApplianceDataStrategy()
     );
 
     public GroheApplianceDataConverter(final OndusService service) {
@@ -31,10 +31,10 @@ public class GroheApplianceDataConverter {
         result.put("serialnumber", appliance.getSerialNumber());
 
         this.service.applianceStatus(appliance)
-                .ifPresent(status -> this.putStatus(status, result));
+            .ifPresent(status -> this.putStatus(status, result));
 
         this.service.applianceData(appliance, Instant.now().minus(Duration.ofHours(24)), Instant.now())
-                .ifPresent(data -> putData(data, result));
+            .ifPresent(data -> putData(data, result));
 
         return result;
     }

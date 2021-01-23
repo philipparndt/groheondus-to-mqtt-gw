@@ -3,13 +3,12 @@
 
 Convert the grohe ondus data to mqtt messages
 
-This application will post a MQTT message for each connected device.
-The message aims to be compatible to the zigbee2mqtt messages
+This application will post a MQTT message for each connected device. The message aims to be compatible to the
+zigbee2mqtt messages
 
 ## Example message
 
-The short message is already parsed/interpreted and contatins only the most relevant 
-information.
+The short message is already parsed/interpreted and contatins only the most relevant information.
 
 ```json
 {
@@ -23,6 +22,7 @@ information.
 ```
 
 ## Example configuration
+
 see [config-example.json](config-example.json)
 
 ## Docker compose example

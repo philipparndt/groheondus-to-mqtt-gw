@@ -7,6 +7,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.text.StringEscapeUtils;
+import org.apache.http.Header;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -69,8 +70,19 @@ public class GroheTokenLogin {
         }
     }
 
-    private String fetchLocation(final CloseableHttpResponse response) {
-        return response.getHeaders("Location")[0].getValue().replace("ondus://", "https://");
+    private String fetchLocation(final CloseableHttpResponse response) throws IOException {
+        if (response.getStatusLine().getStatusCode() != 302) {
+            throw new IOException("Unexpected code while fetching login location. Check your login credentials. Code: " + response.getStatusLine().getStatusCode());
+        }
+
+        final Header[] locations = response.getHeaders("Location");
+        if (locations.length == 0) {
+            throw new IOException("Login location not found.");
+        }
+
+        return locations[0]
+            .getValue()
+            .replace("ondus://", "https://");
     }
 
     private String buildLoginRequest() {

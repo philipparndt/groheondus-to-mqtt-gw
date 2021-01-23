@@ -1,10 +1,11 @@
 package de.rnd7.groheondustomqtt.grohe;
 
-import org.junit.Test;
+
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public class GroheAPITest {
     @Test

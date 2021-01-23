@@ -24,7 +24,7 @@ public class GroheAPI {
         final List<GroheDevice> result = new ArrayList<>();
         for (final BaseAppliance appliance : service.appliances()) {
             final Room room = appliance.getRoom();
-            final String topic = String.format("grohe/%s/%s/%s", room.getLocation().getName(), room.getName(), appliance.getName());
+            final String topic = String.format("%s/%s/%s", room.getLocation().getName(), room.getName(), appliance.getName());
             result.add(new GroheDevice(topic, this.converter.convert(appliance)));
         }
 

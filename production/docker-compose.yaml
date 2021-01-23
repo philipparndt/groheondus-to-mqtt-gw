@@ -1,11 +1,11 @@
 version: '2'
 
 services:
-  groheondusmqtt:
-    environment:
-      TZ: "Europe/Berlin"
-    hostname: groheondusmqtt
-    image: pharndt/groheondusmqtt
-    volumes:
-     - ./config:/var/lib/groheondus-to-mqtt-gw:ro
-    restart: always 
+    groheondusmqtt:
+        environment:
+            TZ: "Europe/Berlin"
+        hostname: groheondusmqtt
+        image: pharndt/groheondusmqtt
+        volumes:
+            - ./config:/var/lib/groheondus-to-mqtt-gw:ro
+        restart: always

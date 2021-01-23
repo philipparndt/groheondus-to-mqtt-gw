@@ -1,8 +1,11 @@
 {
-	"mqtt-url": "tcp://192.168.2.2:1883",
-	
-	"grohe-username": "grohe_ondus_user@example.com",
-	"grohe-password": "grohe_ondus_password",
-
-	"message-interval": 600
+    "mqtt": {
+        "url": "tcp://192.168.2.2:1883",
+        "topic": "grohe"
+    },
+    "grohe": {
+        "username": "grohe_ondus_user@example.com",
+        "password": "grohe_ondus_password",
+        "polling-interval": 60
+    }
 }
