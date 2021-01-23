@@ -1,4 +1,5 @@
 # groheondus-to-mqtt-gw
+
 [![mqtt-smarthome](https://img.shields.io/badge/mqtt-smarthome-blue.svg)](https://github.com/mqtt-smarthome/mqtt-smarthome)
 
 Convert the grohe ondus data to mqtt messages
@@ -12,12 +13,12 @@ The short message is already parsed/interpreted and contatins only the most rele
 
 ```json
 {
-  "serialnumber": "123456789",
-  "temperature": 22.7,
-  "humidity": 40,
-  "connection": "1",
-  "battery": "100",
-  "timestamp": "2019-05-17T01:55:21.000+02:00"
+    "serialnumber": "123456789",
+    "temperature": 22.7,
+    "humidity": 40,
+    "connection": "1",
+    "battery": "100",
+    "timestamp": "2019-05-17T01:55:21.000+02:00"
 }
 ```
 
